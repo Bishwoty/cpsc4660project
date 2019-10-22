@@ -30,6 +30,7 @@ class BPTree {
   Node* SibRoom(Node* N, bool left);
   void rightShift(Node* N, Node* S, int k);
   void leftShift(Node* N, Node* S, int k);
+  void split(Node* N, int k);
   Node* root;
   int order;
 };

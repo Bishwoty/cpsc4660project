@@ -6,7 +6,6 @@ using namespace std;
 // NODE ************************************************************************
 BPTree::Node::Node(int treeOrder, bool isLeaf)
     : order(treeOrder), leaf(isLeaf) {
-  children.resize(treeOrder, nullptr);
   parent = nullptr;
 }
 
@@ -138,4 +137,58 @@ void BPTree::leftShift(Node* N, Node* S, int k) {
   P->values.at(i) = temp;
 
   insert(S, temp);
+}
+
+void BPTree::split(Node* N, int k) {
+  // If N is a leaf
+  if (N->leaf) {
+    // Accommodate a new leaf NN
+    Node* NN = new Node(N->order, true);
+
+    // kp <- the last key in N
+    int kp = N->values.back();
+
+    // Collect k and all keys in N into sequence S and sort S increasingly
+    vector<int> S;
+    S.push_back(k);
+    while (N->values.size() > 0) {
+      S.push_back(N->values.back());
+      N->values.pop_back();
+    }
+
+    // Equally divide S into two halves and install the first and second half
+    // into nodes N and NN respectivly
+    for (int i = 0; i < S.size(); i++) {
+      if (i < S.size() / 2) {
+        N->values.push_back(S.at(i));
+      } else {
+        NN->values.push_back(S.at(i));
+      }
+    }
+
+    // k1 <- the last key in N
+    // k2 <- the last key in NN
+    int k1 = N->values.back();
+    int k2 = NN->values.back();
+
+    // Replace the key equal to kp in parent(N) with k1
+    *std::find(N->parent->values.begin(), N->parent->values.end(), kp) = k1;
+
+    // If vol(parent(N)) < n
+    if (N->parent->values.size() < N->parent->order - 1) {
+      // Insert k2 to patent(N) and create a pointer refering to NN
+      N->parent->values.push_back(k2);
+      N->parent->children.push_back(NN);
+    }
+
+    // Else /* vol(parent(N)) = n */
+    else {
+      split(N->parent, k2);
+    }
+
+  }
+
+  // Else /* N is a full internal node involving split */
+  else {
+  }
 }
