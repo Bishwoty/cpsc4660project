@@ -7,13 +7,12 @@ class BPTree {
   // private:
   class Node {
    public:
-    Node(int treeOrder, bool isLeaf);
+    Node(bool isLeaf);
     ~Node();
 
     vector<Node*> children;
     Node* parent;
     vector<int> values;
-    int order;
     bool leaf;
   };
 
@@ -31,6 +30,7 @@ class BPTree {
   void rightShift(Node* N, Node* S, int k);
   void leftShift(Node* N, Node* S, int k);
   void split(Node* N, int k);
+  void split(Node* N, int k, Node* C);
   Node* root;
   int order;
 };

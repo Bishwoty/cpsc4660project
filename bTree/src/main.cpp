@@ -4,28 +4,32 @@ using namespace std;
 
 int main() {
   BPTree tree;
-  tree.insert(5);
-  tree.insert(5);
-  tree.insert(2);
-  tree.insert(6);
-  tree.insert(9);
-  tree.root->children.at(0) = new BPTree::Node(4, true);
-  tree.root->children.at(0)->parent = tree.root;
-  tree.root->children.at(1) = new BPTree::Node(4, true);
-  tree.root->children.at(1)->parent = tree.root;
-  tree.root->children.at(2) = new BPTree::Node(4, true);
-  tree.root->children.at(2)->parent = tree.root;
+  for (int i = 0; i < 14; i++) {
+    tree.insert(i);
+  }
 
-  tree.root->children.at(1)->values.push_back(0);
-  tree.root->children.at(1)->values.push_back(0);
-  tree.root->children.at(1)->values.push_back(0);
+  for (int i = 0; i < tree.root->values.size(); i++) {
+    cout << tree.root->values.at(i) << ' ';
+  }
+  cout << endl << endl;
+  for (int j = 0; j < tree.root->children.size(); j++) {
+    for (int i = 0; i < tree.root->children.at(j)->values.size(); i++) {
+      cout << tree.root->children.at(j)->values.at(i) << ' ';
+    }
+    cout << endl;
+  }
+  cout << endl << endl;
 
-  tree.root->children.at(0)->values.push_back(0);
-  tree.root->children.at(0)->values.push_back(0);
-  tree.root->children.at(0)->values.push_back(0);
+  for (int g = 0; g < tree.root->children.size(); g++) {
+    for (int j = 0; j < tree.root->children.at(g)->children.size(); j++) {
+      for (int i = 0;
+           i < tree.root->children.at(g)->children.at(j)->values.size(); i++) {
+        cout << tree.root->children.at(g)->children.at(j)->values.at(i) << ' ';
+      }
+      cout << endl;
+    }
+  }
 
-  cout << tree.SibRoom(tree.root->children.at(2), true) << endl
-       << tree.root->children.at(1) << endl
-       << tree.root->children.at(0) << endl;
+  tree.insert(14);
   return 0;
 }
