@@ -19,85 +19,130 @@ BPTree::~BPTree() {
   }
 }
 
-void BPTree::insert(int num) {
+bool BPTree::insert(int key) {
   if (!root) {
     root = new Node(true);
   }
-  root = this->insert(root, num);
-}
 
-BPTree::Node* BPTree::insert(Node* T, int k) {
-  cout << "insert\n";
+  cout << "inserting " << key << endl;
   // Following algorithim in paper
   // 1. N <- T
-  Node* N = T;
+  Node* N = root;
   // 2. While N is a non-leaf node
   while (!N->leaf) {
-    if (k > N->values.back()) {
+    if (key > N->values.back()) {
+      cout << key << " > " << N->values.back() << endl;
       N = N->children.back();
     } else {
       for (int i = 0; i < N->values.size(); i++) {
-        if (k <= N->values.at(i)) {
+        if (key <= N->values.at(i)) {
+          cout << key << " <= " << N->values.at(i) << endl;
           N = N->children.at(i);
           break;
         }
       }
     }
   }
+
+  if (key == 15) {
+    cout << N << ' ' << N->parent->children.at(0) << endl;
+
+    for (int i = 0; i < N->parent->children.at(1)->values.size(); i++) {
+      cout << N->parent->children.at(1)->values.at(i) << ' ';
+    }
+    cout << endl;
+  }
+
   // 3. Search N for key, if found, return "record already exists" and exit
-  if (std::find(N->values.begin(), N->values.end(), k) != N->values.end()) {
-    return T;
+  if (std::find(N->values.begin(), N->values.end(), key) != N->values.end()) {
+    return false;
   }
 
   Node* sibR = SibRoom(N, false);
   Node* sibL = SibRoom(N, true);
 
-  // 4. If N is under full then insert k into N with proper order
+  cout << sibL << ' ' << sibL << endl;
+
+  // 4. If N is under full then insert key into N with proper order
   if (N->values.size() < order - 1) {
-    N->values.push_back(k);
+    N->values.push_back(key);
     std::sort(N->values.begin(), N->values.end());
   }
   // 5. If N is full and at least one of N's right siblings is under full then
-  // Rshift(N, k)
+  // Rshift(N, key)
   else if (sibR) {
-    rightShift(N, sibR, k);
+    rightShift(N, sibR, key);
   }
   // 6. If N is full and at least one of N's left siblings is under full then
-  // Lshift(N, k)
+  // Lshift(N, key)
   else if (sibL) {
-    leftShift(N, sibL, k);
+    leftShift(N, sibL, key);
   }
-  // 7. If N and all N's siblings are full, then Split(N, k)
+  // 7. If N and all N's siblings are full, then Split(N, key)
   else {
-    split(N, k);
+    split(N, key);
   }
   // 8 .return the root
-  while (T->parent) {
-    T = T->parent;
+  while (root->parent) {
+    root = root->parent;
   }
-  return T;
+  return true;
+}
+
+bool BPTree::find(int key) {
+  cout << "finding " << key << endl;
+  Node* N = root;
+  // While N is a non-leaf node
+  while (!N->leaf) {
+    if (key > N->values.back()) {
+      N = N->children.back();
+    } else {
+      for (int i = 0; i < N->values.size(); i++) {
+        if (key <= N->values.at(i)) {
+          N = N->children.at(i);
+          break;
+        }
+      }
+    }
+  }
+
+  // Search N for key
+  if (std::find(N->values.begin(), N->values.end(), key) == N->values.end()) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 BPTree::Node* BPTree::SibRoom(Node* N, bool left) {
-  cout << "SibRoom\n";
+  cout << "SibRoom " << (left ? "left" : "right") << endl;
   if (!N->parent) {
     return nullptr;
   }
-
+  cout << "has parent" << endl;
   Node* P = N->parent;
-  int i;
-  for (i = 0; i < P->children.size(); i++) {
-    if (P->children.at(i) == N) {
-      cout << i << "\n";
+  int pos = 0;
+  for (; pos < P->children.size(); pos++) {
+    if (P->children.at(pos) == N) {
       break;
     }
   }
-  // cout << P->children.at(0)->values.at(0) << P->children.at(1)->values.at(0);
-  for (int j = (left) ? i - 1 : i + 1; (left) ? j >= 0 : j < P->children.size();
-       (left) ? j-- : j++) {
-    if (P->children.at(j)) {
-      if (P->children.at(j)->values.size() < order - 1) {
-        return P->children.at(i - 1);
+
+  if (pos >= P->children.size()) {
+    cout << "ERROR!" << endl;
+  }
+  if (left) {
+    if (pos - 1 >= 0) {
+      cout << "true" << endl;
+      if (P->children.at(pos - 1)->values.size() < order - 1) {
+        cout << "true" << endl;
+        return P->children.at(pos - 1);
+      }
+    }
+  } else {
+    if (pos + 1 < P->children.size()) {
+      if (P->children.at(pos + 1)->values.size() < order - 1) {
+        return P->children.at(pos + 1);
       }
     }
   }
@@ -109,19 +154,11 @@ void BPTree::rightShift(Node* N, Node* S, int k) {
   N->values.push_back(k);
   std::sort(N->values.begin(), N->values.end());
   int temp = N->values.back();
-  N->values.erase(N->values.end() - 1);
+  N->values.pop_back();
 
-  // replace key in parent
-  Node* P = N->parent;
-  int i;
-  for (i = 0; i < P->children.size(); i++) {
-    if (P->children.at(i) == N) {
-      break;
-    }
-  }
-  P->values.at(i) = N->values.back();
+  S->values.push_back(temp);
 
-  insert(S, temp);
+  orginize(N->parent);
 }
 
 void BPTree::leftShift(Node* N, Node* S, int k) {
@@ -131,17 +168,9 @@ void BPTree::leftShift(Node* N, Node* S, int k) {
   int temp = N->values.front();
   N->values.erase(N->values.begin());
 
-  // replace key in parent
-  Node* P = S->parent;
-  int i;
-  for (i = 0; i < P->children.size(); i++) {
-    if (P->children.at(i) == S) {
-      break;
-    }
-  }
-  P->values.at(i) = temp;
+  S->values.push_back(temp);
 
-  insert(S, temp);
+  orginize(N->parent);
 }
 
 void BPTree::split(Node* N, int k) {
@@ -149,19 +178,13 @@ void BPTree::split(Node* N, int k) {
   // N is a leaf
 
   // Create new root if needed
-  bool newRoot = false;
   if (!N->parent) {
     N->parent = new Node(false);
     N->parent->children.push_back(N);
-    N->parent->values.push_back(N->values.back());
-    newRoot = true;
   }
 
   // Accommodate a new leaf NN
   Node* NN = new Node(true);
-
-  // kp <- the last key in N
-  int kp = N->values.back();
 
   // Collect k and all keys in N into sequence S and sort S increasingly
   vector<int> S;
@@ -181,100 +204,96 @@ void BPTree::split(Node* N, int k) {
       NN->values.push_back(S.at(i));
     }
   }
-  // k1 <- the last key in N
-  // k2 <- the last key in NN
-  int k1 = N->values.back();
-  int k2 = NN->values.back();
-
-  // Replace the key equal to kp in parent(N) with k1
-  *std::find(N->parent->values.begin(), N->parent->values.end(), kp) = k1;
 
   // If vol(parent(N)) < n
-  if (N->parent->values.size() < order - 1) {
-    // Insert k2 to parent(N) and create a pointer refering to NN
+  if (N->parent->children.size() < order) {
+    // Create a pointer in parent(N) refering to NN
     N->parent->children.push_back(NN);
     NN->parent = N->parent;
-    if (!newRoot) {
-      N->parent->values.push_back(k2);
-    }
 
-    // Make sure new node is in correct position
-    for (int i = NN->values.size() - 1; i > 0; i--) {
-      if (NN->values.at(i) < NN->values.at(i - 1)) {
-        std::swap(NN->values.at(i), NN->values.at(i - 1));
-        std::swap(NN->children.at(i + 1), NN->children.at(i));
-      }
-    }
+    // Make sure new node is in correct position in parent
+    orginize(N->parent);
   }
 
   // Else /* vol(parent(N)) = n */
   else {
-    split(N->parent, k2, NN);
+    split(N->parent, NN);
   }
 }
 
-void BPTree::split(Node* N, int k, Node* C) {
+void BPTree::split(Node* N, Node* C) {
   cout << "split\n";
   // N is a full internal node involving split
 
   // Create new root if needed
-  bool newRoot = false;
   if (!N->parent) {
     N->parent = new Node(false);
     N->parent->children.push_back(N);
-    newRoot = true;
   }
 
   // Accommodate a new node NN
   Node* NN = new Node(false);
-  cout << "oops" << endl;
-  // Collect k and all keys in N into sequence S and sort S increasingly
-  auto it = N->values.begin();
-  auto it2 = N->children.begin();
-  ++it2;
-  for (; it != N->values.end(); ++it) {
-    if (k < *it) {
+
+  // Create a refrence to C in N
+  auto pos = N->children.begin();
+  for (; pos != N->children.end(); ++pos) {
+    if (C->values.back() < (*pos)->values.back()) {
       break;
     }
-    ++it2;
   }
-  N->values.insert(it, k);
-  N->children.insert(it2, C);
+  N->children.insert(pos, C);
+  C->parent = N;
 
-  // Pick the median element in S as km and install the elements smaller than
-  // km into N and install the elements larger than km into NN
-  int km = N->values.at(N->values.size() / 2);
-  NN->children.push_back(N->children.back());
-  N->children.pop_back();
-
-  for (int i = 0; i < N->values.size(); i++) {
-    if (N->values.at(i) > km) {
-      NN->values.push_back(N->values.at(i));
-      N->values.erase(N->values.begin() + i);
-      NN->children.push_back(N->children.at(i));
-      N->children.erase(N->children.begin() + i);
-      i--;
-    }
+  // Pick the median element in N and remove the elements after it from N
+  // and install them, into NN
+  int middle = N->children.size() / 2;
+  while (N->children.size() > middle) {
+    NN->children.push_back(N->children.at(middle));
+    N->children.at(middle)->parent = NN;
+    N->children.erase(N->children.begin() + middle);
   }
+
+  // Orginize N and NN
+  orginize(N);
+  orginize(NN);
+
   // If vol(parent(N)) < n
-  if (N->parent->values.size() < order - 1) {
-    // Insert km to parent(N) and create a pointer refering to NN
-    if (!newRoot) {
-      N->parent->values.push_back(km);
-    }
+  if (N->parent->children.size() < order) {
+    // Create a pointer in parent(N) refering to NN
     N->parent->children.push_back(NN);
     NN->parent = N->parent;
-    // Make sure new node is in correct position
-    for (int i = NN->values.size() - 1; i > 0; i--) {
-      if (NN->values.at(i) < NN->values.at(i - 1)) {
-        std::swap(NN->values.at(i), NN->values.at(i - 1));
-        std::swap(NN->children.at(i + 1), NN->children.at(i));
-      }
-    }
+
+    // Make sure new node is in correct position in parent
+    orginize(N->parent);
   }
 
   // Else /* vol(parent(N)) = n */
   else {
-    split(N->parent, km, NN);
+    split(N->parent, NN);
   }
+}
+
+void BPTree::orginize(Node* N) {
+  N->values.clear();
+  bool again = true;
+  while (again) {
+    again = false;
+    for (int i = 0; i < N->children.size() - 1; i++) {
+      if (N->children.at(i)->values.back() >
+          N->children.at(i + 1)->values.back()) {
+        std::swap(N->children.at(i), N->children.at(i + 1));
+        again = true;
+      }
+    }
+  }
+  for (int i = 0; i < N->children.size() - 1; i++) {
+    N->values.push_back(max(N->children.at(i)));
+  }
+}
+
+int BPTree::max(Node* N) {
+  while (!N->leaf) {
+    N = N->children.back();
+  }
+  return N->values.back();
 }
