@@ -25,6 +25,7 @@ class BPTree {
   bool remove(int key);
 
   // private:
+  void deleteTree(Node* N);
   Node* Sibling(Node* N, bool left);
   void rightShift(Node* N, Node* S, int k);
   void leftShift(Node* N, Node* S, int k);

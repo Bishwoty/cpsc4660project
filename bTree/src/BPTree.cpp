@@ -14,7 +14,7 @@ BPTree::BPTree(int treeOrder) : order(treeOrder), root(nullptr) {}
 
 BPTree::~BPTree() {
   if (root) {
-    delete root;
+    deleteTree(root);
     root = nullptr;
   }
 }
@@ -203,6 +203,13 @@ bool BPTree::remove(int key) {
     }
   }
   return true;
+}
+
+void BPTree::deleteTree(Node* N) {
+  for (int i = 0; i < N->children.size(); i++) {
+    deleteTree(N->children.at(i));
+  }
+  delete N;
 }
 
 BPTree::Node* BPTree::Sibling(Node* N, bool left) {
