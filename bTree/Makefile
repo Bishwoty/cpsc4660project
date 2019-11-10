@@ -1,7 +1,7 @@
 CXX=g++
-CXXFLAGS= -std=c++11 -g -fprofile-arcs 
+CXXFLAGS= -std=c++11 -g -fprofile-arcs
 
-LINKFLAGS= 
+LINKFLAGS=
 
 SRC_DIR = src
 
@@ -30,4 +30,4 @@ $(PROGRAM):
 
 
 memcheck: $(PROGRAM)
-	valgrind --tool=memcheck --leak-check=yes $(PROGRAM)
+	valgrind --tool=memcheck --leak-check=yes ./$(PROGRAM)

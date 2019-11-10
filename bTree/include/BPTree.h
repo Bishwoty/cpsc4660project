@@ -25,11 +25,12 @@ class BPTree {
   bool remove(int key);
 
   // private:
-  Node* SibRoom(Node* N, bool left);
+  Node* Sibling(Node* N, bool left);
   void rightShift(Node* N, Node* S, int k);
   void leftShift(Node* N, Node* S, int k);
   void split(Node* N, int k);
   void split(Node* N, Node* C);
+  void concatinate(Node* N);
   void orginize(Node* N);
   int max(Node* N);
   Node* root;

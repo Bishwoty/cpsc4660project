@@ -31,12 +31,10 @@ bool BPTree::insert(int key) {
   // 2. While N is a non-leaf node
   while (!N->leaf) {
     if (key > N->values.back()) {
-      cout << key << " > " << N->values.back() << endl;
       N = N->children.back();
     } else {
       for (int i = 0; i < N->values.size(); i++) {
         if (key <= N->values.at(i)) {
-          cout << key << " <= " << N->values.at(i) << endl;
           N = N->children.at(i);
           break;
         }
@@ -44,38 +42,27 @@ bool BPTree::insert(int key) {
     }
   }
 
-  if (key == 15) {
-    cout << N << ' ' << N->parent->children.at(0) << endl;
-
-    for (int i = 0; i < N->parent->children.at(1)->values.size(); i++) {
-      cout << N->parent->children.at(1)->values.at(i) << ' ';
-    }
-    cout << endl;
-  }
-
   // 3. Search N for key, if found, return "record already exists" and exit
   if (std::find(N->values.begin(), N->values.end(), key) != N->values.end()) {
     return false;
   }
 
-  Node* sibR = SibRoom(N, false);
-  Node* sibL = SibRoom(N, true);
-
-  cout << sibL << ' ' << sibL << endl;
+  Node* sibR = Sibling(N, false);
+  Node* sibL = Sibling(N, true);
 
   // 4. If N is under full then insert key into N with proper order
   if (N->values.size() < order - 1) {
     N->values.push_back(key);
     std::sort(N->values.begin(), N->values.end());
   }
-  // 5. If N is full and at least one of N's right siblings is under full then
+  // 5. If N is full and N's right sibling is under full then
   // Rshift(N, key)
-  else if (sibR) {
+  else if (sibR && sibR->values.size() < order - 1) {
     rightShift(N, sibR, key);
   }
-  // 6. If N is full and at least one of N's left siblings is under full then
+  // 6. If N is full and N's left sibling is under full then
   // Lshift(N, key)
-  else if (sibL) {
+  else if (sibL && sibL->values.size() < order - 1) {
     leftShift(N, sibL, key);
   }
   // 7. If N and all N's siblings are full, then Split(N, key)
@@ -92,6 +79,12 @@ bool BPTree::insert(int key) {
 bool BPTree::find(int key) {
   cout << "finding " << key << endl;
   Node* N = root;
+
+  // If N is null, the tree is empty, return false
+  if (!N) {
+    return false;
+  }
+
   // While N is a non-leaf node
   while (!N->leaf) {
     if (key > N->values.back()) {
@@ -114,12 +107,109 @@ bool BPTree::find(int key) {
   }
 }
 
-BPTree::Node* BPTree::SibRoom(Node* N, bool left) {
-  cout << "SibRoom " << (left ? "left" : "right") << endl;
+bool BPTree::remove(int key) {
+  cout << "removing " << key << endl;
+  Node* N = root;
+  // While N is a non-leaf node
+  while (!N->leaf) {
+    if (key > N->values.back()) {
+      N = N->children.back();
+    } else {
+      for (int i = 0; i < N->values.size(); i++) {
+        if (key <= N->values.at(i)) {
+          N = N->children.at(i);
+          break;
+        }
+      }
+    }
+  }
+
+  auto position = std::find(N->values.begin(), N->values.end(), key);
+  // Search N for key
+  if (position == N->values.end()) {
+    // Key doesnt exist, do nothing and return
+    return false;
+  }
+
+  // Delete key
+  N->values.erase(position);
+
+  // Ceiling of order / 2, needed to check underflow
+  int minValues = (order % 2) ? order / 2 + 1 : order / 2;
+
+  // If root
+  if (N == root) {
+    // If last elemet is deleted, delete root node (tree is empty)
+    if (N->values.size() < 1) {
+      delete N;
+      root = nullptr;
+    }
+  }
+  // If underflow not in root
+  else if (N->values.size() < minValues) {
+    // Find siblings
+    Node* sibR = Sibling(N, false);
+    Node* sibL = Sibling(N, true);
+
+    // Try to redistibute with left sibling
+    if (sibL && sibL->values.size() > minValues) {
+      cout << "Leaf redistribute left" << endl;
+      N->values.insert(N->values.begin(), sibL->values.back());
+      sibL->values.pop_back();
+      orginize(N->parent);
+    }
+    // Try to redistibute with right sibling
+    else if (sibR && sibR->values.size() > minValues) {
+      cout << "Leaf redistribute right" << endl;
+      N->values.push_back(sibR->values.front());
+      sibR->values.erase(sibR->values.begin());
+      orginize(N->parent);
+    }
+    // Merge with a sibling
+    else {
+      cout << "Leaf merge" << endl;
+      Node* merge = (sibL ? sibL : sibR);
+      while (N->values.size() > 0) {
+        merge->values.push_back(N->values.back());
+        N->values.pop_back();
+      }
+
+      // Sort merged node
+      std::sort(merge->values.begin(), merge->values.end());
+
+      // Find and delete empty node
+      Node* P = N->parent;
+      int pos = 0;
+      for (; pos < P->children.size(); pos++) {
+        if (P->children.at(pos) == N) {
+          break;
+        }
+      }
+      if (pos >= P->children.size()) {
+        cout << "ERROR: My parent doesn't know me!" << endl;
+      }
+
+      delete P->children.at(pos);
+      P->children.erase(P->children.begin() + pos);
+      N = nullptr;
+
+      // Update parent
+      orginize(merge->parent);
+
+      // If parent underflows
+      if (P->children.size() < minValues) {
+        concatinate(P);
+      }
+    }
+  }
+  return true;
+}
+
+BPTree::Node* BPTree::Sibling(Node* N, bool left) {
+  cout << "Sibling " << (left ? "left" : "right") << endl;
   if (!N->parent) {
     return nullptr;
   }
-  cout << "has parent" << endl;
   Node* P = N->parent;
   int pos = 0;
   for (; pos < P->children.size(); pos++) {
@@ -129,21 +219,15 @@ BPTree::Node* BPTree::SibRoom(Node* N, bool left) {
   }
 
   if (pos >= P->children.size()) {
-    cout << "ERROR!" << endl;
+    cout << "ERROR: My parent doesn't know me!" << endl;
   }
   if (left) {
     if (pos - 1 >= 0) {
-      cout << "true" << endl;
-      if (P->children.at(pos - 1)->values.size() < order - 1) {
-        cout << "true" << endl;
-        return P->children.at(pos - 1);
-      }
+      return P->children.at(pos - 1);
     }
   } else {
     if (pos + 1 < P->children.size()) {
-      if (P->children.at(pos + 1)->values.size() < order - 1) {
-        return P->children.at(pos + 1);
-      }
+      return P->children.at(pos + 1);
     }
   }
   return nullptr;
@@ -156,7 +240,7 @@ void BPTree::rightShift(Node* N, Node* S, int k) {
   int temp = N->values.back();
   N->values.pop_back();
 
-  S->values.push_back(temp);
+  S->values.insert(S->values.begin(), temp);
 
   orginize(N->parent);
 }
@@ -288,6 +372,81 @@ void BPTree::orginize(Node* N) {
   }
   for (int i = 0; i < N->children.size() - 1; i++) {
     N->values.push_back(max(N->children.at(i)));
+  }
+}
+
+void BPTree::concatinate(Node* N) {
+  cout << "concatinate" << endl;
+  // If N is the root and has only one child
+  if (N == root && N->children.size() == 1) {
+    // Make child the root, delete old root
+    root = N->children.front();
+    root->parent = nullptr;
+    delete N;
+    return;
+  }
+
+  // Ceiling of order / 2, needed to check underflow
+  int minChildren = (order % 2) ? order / 2 + 1 : order / 2;
+
+  // Find siblings
+  Node* sibR = Sibling(N, false);
+  Node* sibL = Sibling(N, true);
+
+  // Try to redistibute with left sibling
+  if (sibL && sibL->children.size() > minChildren) {
+    N->children.insert(N->children.begin(), sibL->children.back());
+    sibL->children.back()->parent = N;
+    sibL->children.pop_back();
+    orginize(N);
+    orginize(sibL);
+    orginize(N->parent);
+  }
+  // Try to redistibute with right sibling
+  else if (sibR && sibR->children.size() > minChildren) {
+    N->children.push_back(sibR->children.front());
+    sibR->children.front()->parent = N;
+    sibR->children.erase(sibR->children.begin());
+    orginize(N);
+    orginize(sibR);
+    orginize(N->parent);
+  }
+
+  // Merge with a sibling
+  else {
+    Node* merge = (sibL ? sibL : sibR);
+    while (N->children.size() > 0) {
+      merge->children.push_back(N->children.back());
+      N->children.back()->parent = merge;
+      N->children.pop_back();
+    }
+
+    // Sort merged node and update seperators
+    orginize(merge);
+
+    // Find and delete empty node
+    Node* P = N->parent;
+    int pos = 0;
+    for (; pos < P->children.size(); pos++) {
+      if (P->children.at(pos) == N) {
+        break;
+      }
+    }
+    if (pos >= P->children.size()) {
+      cout << "ERROR: My parent doesn't know me!" << endl;
+    }
+
+    delete P->children.at(pos);
+    P->children.erase(P->children.begin() + pos);
+    N = nullptr;
+
+    // Update parent
+    orginize(merge->parent);
+
+    // If parent underflows
+    if (P->children.size() < minChildren) {
+      concatinate(P);
+    }
   }
 }
 
