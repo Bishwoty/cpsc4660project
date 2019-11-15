@@ -24,7 +24,7 @@ bool BPTree::insert(int key) {
     root = new Node(true);
   }
 
-  cout << "inserting " << key << endl;
+  // cout << "inserting " << key << endl;
   // Following algorithim in paper
   // 1. N <- T
   Node* N = root;
@@ -43,8 +43,10 @@ bool BPTree::insert(int key) {
   }
 
   // 3. Search N for key, if found, return "record already exists" and exit
-  if (std::find(N->values.begin(), N->values.end(), key) != N->values.end()) {
-    return false;
+  for (int i = 0; i < N->values.size(); i++) {
+    if (N->values.at(i) == key) {
+      return false;
+    }
   }
 
   Node* sibR = Sibling(N, false);
@@ -52,8 +54,13 @@ bool BPTree::insert(int key) {
 
   // 4. If N is under full then insert key into N with proper order
   if (N->values.size() < order - 1) {
-    N->values.push_back(key);
-    std::sort(N->values.begin(), N->values.end());
+    auto pos = N->values.begin();
+    for (; pos != N->values.end(); ++pos) {
+      if (*pos > key) {
+        break;
+      }
+    }
+    N->values.insert(pos, key);
   }
   // 5. If N is full and N's right sibling is under full then
   // Rshift(N, key)
@@ -77,7 +84,7 @@ bool BPTree::insert(int key) {
 }
 
 bool BPTree::find(int key) {
-  cout << "finding " << key << endl;
+  // cout << "finding " << key << endl;
   Node* N = root;
 
   // If N is null, the tree is empty, return false
@@ -100,15 +107,16 @@ bool BPTree::find(int key) {
   }
 
   // Search N for key
-  if (std::find(N->values.begin(), N->values.end(), key) == N->values.end()) {
-    return false;
-  } else {
-    return true;
+  for (int i = 0; i < N->values.size(); i++) {
+    if (N->values.at(i) == key) {
+      return true;
+    }
   }
+  return false;
 }
 
 bool BPTree::remove(int key) {
-  cout << "removing " << key << endl;
+  // cout << "removing " << key << endl;
   Node* N = root;
   // While N is a non-leaf node
   while (!N->leaf) {
@@ -153,21 +161,21 @@ bool BPTree::remove(int key) {
 
     // Try to redistibute with left sibling
     if (sibL && sibL->values.size() > minValues) {
-      cout << "Leaf redistribute left" << endl;
+      // cout << "Leaf redistribute left" << endl;
       N->values.insert(N->values.begin(), sibL->values.back());
       sibL->values.pop_back();
       orginize(N->parent);
     }
     // Try to redistibute with right sibling
     else if (sibR && sibR->values.size() > minValues) {
-      cout << "Leaf redistribute right" << endl;
+      // cout << "Leaf redistribute right" << endl;
       N->values.push_back(sibR->values.front());
       sibR->values.erase(sibR->values.begin());
       orginize(N->parent);
     }
     // Merge with a sibling
     else {
-      cout << "Leaf merge" << endl;
+      // cout << "Leaf merge" << endl;
       Node* merge = (sibL ? sibL : sibR);
       while (N->values.size() > 0) {
         merge->values.push_back(N->values.back());
@@ -186,7 +194,7 @@ bool BPTree::remove(int key) {
         }
       }
       if (pos >= P->children.size()) {
-        cout << "ERROR: My parent doesn't know me!" << endl;
+        // cout << "ERROR: My parent doesn't know me!" << endl;
       }
 
       delete P->children.at(pos);
@@ -213,7 +221,7 @@ void BPTree::deleteTree(Node* N) {
 }
 
 BPTree::Node* BPTree::Sibling(Node* N, bool left) {
-  cout << "Sibling " << (left ? "left" : "right") << endl;
+  // cout << "Sibling " << (left ? "left" : "right") << endl;
   if (!N->parent) {
     return nullptr;
   }
@@ -226,7 +234,7 @@ BPTree::Node* BPTree::Sibling(Node* N, bool left) {
   }
 
   if (pos >= P->children.size()) {
-    cout << "ERROR: My parent doesn't know me!" << endl;
+    // cout << "ERROR: My parent doesn't know me!" << endl;
   }
   if (left) {
     if (pos - 1 >= 0) {
@@ -241,7 +249,7 @@ BPTree::Node* BPTree::Sibling(Node* N, bool left) {
 }
 
 void BPTree::rightShift(Node* N, Node* S, int k) {
-  cout << "rShift\n";
+  // cout << "rShift\n";
   N->values.push_back(k);
   std::sort(N->values.begin(), N->values.end());
   int temp = N->values.back();
@@ -253,7 +261,7 @@ void BPTree::rightShift(Node* N, Node* S, int k) {
 }
 
 void BPTree::leftShift(Node* N, Node* S, int k) {
-  cout << "lShift\n";
+  // cout << "lShift\n";
   N->values.push_back(k);
   std::sort(N->values.begin(), N->values.end());
   int temp = N->values.front();
@@ -265,7 +273,7 @@ void BPTree::leftShift(Node* N, Node* S, int k) {
 }
 
 void BPTree::split(Node* N, int k) {
-  cout << "splitLeaf\n";
+  // cout << "splitLeaf\n";
   // N is a leaf
 
   // Create new root if needed
@@ -313,7 +321,7 @@ void BPTree::split(Node* N, int k) {
 }
 
 void BPTree::split(Node* N, Node* C) {
-  cout << "split\n";
+  // cout << "split\n";
   // N is a full internal node involving split
 
   // Create new root if needed
@@ -383,7 +391,7 @@ void BPTree::orginize(Node* N) {
 }
 
 void BPTree::concatinate(Node* N) {
-  cout << "concatinate" << endl;
+  // cout << "concatinate" << endl;
   // If N is the root and has only one child
   if (N == root && N->children.size() == 1) {
     // Make child the root, delete old root
@@ -440,7 +448,7 @@ void BPTree::concatinate(Node* N) {
       }
     }
     if (pos >= P->children.size()) {
-      cout << "ERROR: My parent doesn't know me!" << endl;
+      // cout << "ERROR: My parent doesn't know me!" << endl;
     }
 
     delete P->children.at(pos);
