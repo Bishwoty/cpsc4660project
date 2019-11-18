@@ -10,8 +10,9 @@ public:
   int hash(int n);
   string bucketId(int n);
   void search(int key);
-  void insert(int key, string value);
+  void insert(int key);
   void deleteKey(int key);
+  void display();
 
 private:
   int globalDepth, bucketSize;

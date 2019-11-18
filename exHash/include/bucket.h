@@ -1,5 +1,5 @@
 #include <iostream>
-#include <map>
+#include <vector>
 #pragma once
 using namespace std;
 
@@ -7,7 +7,7 @@ class Bucket {
 public:
   Bucket(int depth, int size);
   void search(int key);
-  int insert(int key, string value);
+  int insert(int key);
   int deleteKey(int key);
   int full();
   int empty();
@@ -15,5 +15,5 @@ public:
 
 private:
   int localDepth, bucketSize;
-  map<int, string> values;
+  vector<int> values;
 };

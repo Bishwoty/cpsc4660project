@@ -11,7 +11,7 @@ Address::Address(int depth, int size) {
   }
 }
 
-int Address::hash(int n) { return n & ((1 << globalDepth) - 1); }
+int Address::hash(int n) { return ((n % 64) >> (6 - globalDepth)); }
 
 string Address::bucketId(int n) {
   int d;
@@ -38,9 +38,9 @@ void Address::search(int key) {
   cout << "Finding key:" << key << " in bucket " << bucketId(bucketNo) << endl;
 }
 
-void Address::insert(int key, string value) {
+void Address::insert(int key) {
   int bucketNo = hash(key);
-  buckets[bucketNo]->insert(key, value);
+  buckets[bucketNo]->insert(key);
 }
 
 void Address::deleteKey(int key) {

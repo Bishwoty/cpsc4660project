@@ -17,15 +17,15 @@ void Bucket::search(int key) {
     cout << "Key does not exist." << endl;
 }
 
-int Bucket::insert(int key, string value) {
-  map<int, string>::iterator i;
-  i = values.find(key);
-  if (i != values.end())
+int Bucket::insert(int key) {
+  values.find(key);
+  /*if (i != values.end())
     return -1;
   if (full())
     return 0;
   values[key] = value;
-  return 1;
+  return 1;*/
+  return values.find(key);
 }
 
 int Bucket::deleteKey(int key) {
