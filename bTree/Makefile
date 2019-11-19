@@ -1,7 +1,7 @@
 CXX=g++
-CXXFLAGS= -std=c++11 -g -fprofile-arcs 
+CXXFLAGS= -std=c++11 -g -fprofile-arcs
 
-LINKFLAGS= 
+LINKFLAGS=
 
 SRC_DIR = src
 
@@ -10,7 +10,7 @@ INCLUDE = include
 PROGRAM = bTest
 
 .PHONY: all
-all: clean-all $(PROGRAM)
+all: clean-all $(PROGRAM) static
 
 # default rule for compiling .cc to .o
 %.o: %.cpp
@@ -30,4 +30,7 @@ $(PROGRAM):
 
 
 memcheck: $(PROGRAM)
-	valgrind --tool=memcheck --leak-check=yes $(PROGRAM)
+	valgrind --tool=memcheck --leak-check=yes ./$(PROGRAM)
+
+static: ${SRC_DIR}
+	cppcheck --verbose --enable=all --xml ${SRC_DIR} ${INCLUDE} --suppress=missingInclude

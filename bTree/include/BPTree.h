@@ -3,8 +3,7 @@
 using namespace std;
 
 class BPTree {
- public:
-  // private:
+ private:
   class Node {
    public:
     Node(bool isLeaf);
@@ -20,17 +19,20 @@ class BPTree {
   BPTree(int treeOrder = 4);
   ~BPTree();
 
-  void insert(int num);
-  bool find(int num);
-  bool remove(int num);
+  bool insert(int key);
+  bool find(int key);
+  bool remove(int key);
 
-  // private:
-  Node* insert(Node* T, int k);
-  Node* SibRoom(Node* N, bool left);
+ private:
+  void deleteTree(Node* N);
+  Node* Sibling(Node* N, bool left);
   void rightShift(Node* N, Node* S, int k);
   void leftShift(Node* N, Node* S, int k);
   void split(Node* N, int k);
-  void split(Node* N, int k, Node* C);
+  void split(Node* N, Node* C);
+  void concatinate(Node* N);
+  void orginize(Node* N);
+  int max(Node* N);
   Node* root;
   int order;
 };
