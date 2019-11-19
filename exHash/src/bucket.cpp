@@ -1,57 +1,28 @@
+#include <algorithm>
 #include <bucket.h>
 #include <iostream>
 
 using namespace std;
 
-Bucket::Bucket(int depth, int size) {
-  localDepth = depth;
-  bucketSize = size;
-}
+Bucket::Bucket(int depth) { localDepth = depth; }
 
-void Bucket::search(int key) {
-  map<int, string>::iterator i;
-  i = values.find(key);
-  if (i != values.end())
-    cout << " Value: " << i->second << endl;
-  else
-    cout << "Key does not exist." << endl;
+bool Bucket::search(int key) {
+  auto it = std::find(values.begin(), values.end(), key);
+  if (it != values.end()) {
+    cout << "Value = " << *it << endl;
+    return true;
+  } else
+    return false;
 }
 
 int Bucket::insert(int key) {
-  values.find(key);
-  /*if (i != values.end())
-    return -1;
-  if (full())
-    return 0;
-  values[key] = value;
-  return 1;*/
-  return values.find(key);
-}
-
-int Bucket::deleteKey(int key) {
-  map<int, string>::iterator i;
-  i = values.find(key);
-  if (i != values.end()) {
-    values.erase(i);
-    return 1;
-  } else {
-    cout << "Key does not exist." << endl;
-    return 0;
-  }
-}
-
-int Bucket::getDepth() { return localDepth; }
-
-int Bucket::full() {
+  bool inserted = search(key);
   if (values.size() == bucketSize)
-    return 1;
-  else
     return 0;
+  if (inserted)
+    return 1;
+  values.push_back(key);
+  return 2;
 }
 
-int Bucket::empty() {
-  if (values.size() == 0)
-    return 1;
-  else
-    return 0;
-}
+int Bucket::deleteKey(int key) {}

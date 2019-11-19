@@ -14,7 +14,7 @@ int main() {
     cin >> key;
     Address a(1, 2); // globalDepth = 1, bucketSize = 2
     a.insert(key);
-    cout << "Insert " << key << " - " << a.display() << endl;
+    // cout << "Insert " << key << " - " << a.display() << endl;
   } while (key != 0);
 
   /*

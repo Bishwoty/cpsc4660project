@@ -12,6 +12,7 @@ public:
   void search(int key);
   void insert(int key);
   void deleteKey(int key);
+  void split(int bucketNo);
   void display();
 
 private:

@@ -7,7 +7,7 @@ Address::Address(int depth, int size) {
   globalDepth = depth;
   bucketSize = size;
   for (int i = 0; i < 1 << depth; i++) {
-    buckets.push_back(new Bucket(depth, size));
+    buckets.push_back(new Bucket(bucketSize));
   }
 }
 
@@ -34,13 +34,26 @@ string Address::bucketId(int n) {
 
 void Address::search(int key) {
   int bucketNo = hash(key);
-  buckets[bucketNo]->search(key);
-  cout << "Finding key:" << key << " in bucket " << bucketId(bucketNo) << endl;
+  bool inserted = buckets[bucketNo]->search(key);
+  if (inserted == true)
+    cout << "Found key:" << key << " in bucket: " << bucketId(bucketNo) << endl;
+  else
+    cout << "This key does not exist. ???" << endl;
 }
 
 void Address::insert(int key) {
   int bucketNo = hash(key);
-  buckets[bucketNo]->insert(key);
+  int status = buckets[bucketNo]->insert(key);
+  cout << "Status: " << status << endl;
+  if (status == 0) {
+    cout << "Bucket full, splitting...";
+    // split(bucketNo);
+    insert(key);
+  } else if (status == 1) {
+    cout << "Key already in bucket." << endl;
+  } else
+    cout << "Inserted key: " << key << " into bucket: " << bucketId(bucketNo)
+         << endl;
 }
 
 void Address::deleteKey(int key) {
@@ -48,4 +61,9 @@ void Address::deleteKey(int key) {
   buckets[bucketNo]->deleteKey(key);
   cout << "Deleted key: " << key << " from bucket " << bucketId(bucketNo)
        << endl;
+}
+
+void Address::split(int bucketNo) {
+  // if () // something
+  // grow();
 }

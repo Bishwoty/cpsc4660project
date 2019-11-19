@@ -31,3 +31,6 @@ $(PROGRAM):
 
 memcheck: $(PROGRAM)
 	valgrind --tool=memcheck --leak-check=yes $(PROGRAM)
+
+static: ${SRC_DIR}
+	cppcheck --verbose --enable=all --xml ${SRC_DIR} ${INCLUDE} --suppress=missingInclude
