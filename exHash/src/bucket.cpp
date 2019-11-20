@@ -4,7 +4,10 @@
 
 using namespace std;
 
-Bucket::Bucket(int depth) { localDepth = depth; }
+Bucket::Bucket(int depth, int size) {
+  localDepth = depth;
+  bucketSize = size;
+}
 
 bool Bucket::search(int key) {
   auto it = std::find(values.begin(), values.end(), key);
@@ -26,3 +29,8 @@ int Bucket::insert(int key) {
 }
 
 int Bucket::deleteKey(int key) {}
+
+vector<int> Bucket::copy() {
+  vector<int> temp(values.begin(), values.end());
+  return temp;
+}

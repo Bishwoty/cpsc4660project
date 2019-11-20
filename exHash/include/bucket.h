@@ -5,14 +5,18 @@ using namespace std;
 
 class Bucket {
 public:
-  Bucket(int depth); // localDepth should always be 2.
+  Bucket(int depth, int size);
   bool search(int key);
   int insert(int key);
   int deleteKey(int key);
-  int getDepth() { return localDepth; } /// might not need
+  int increaseDepth() { return localDepth++; }
+  int decreaseDepth() { return localDepth--; }
+  int getDepth() { return localDepth; }
   int clear() { values.clear(); }
+  vector<int> copy();
 
 private:
-  int localDepth; // localDepth should always be 2.
+  int localDepth;
+  int bucketSize;
   vector<int> values;
 };

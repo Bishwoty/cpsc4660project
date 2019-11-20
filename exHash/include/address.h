@@ -12,7 +12,10 @@ public:
   void search(int key);
   void insert(int key);
   void deleteKey(int key);
+  int pairIndexes(int bucketNo, int depth);
   void split(int bucketNo);
+  void grow();
+  void shrink();
   void display();
 
 private:

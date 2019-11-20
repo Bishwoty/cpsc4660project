@@ -7,7 +7,7 @@ Address::Address(int depth, int size) {
   globalDepth = depth;
   bucketSize = size;
   for (int i = 0; i < 1 << depth; i++) {
-    buckets.push_back(new Bucket(bucketSize));
+    buckets.push_back(new Bucket(bucketSize, bucketSize));
   }
 }
 
@@ -47,7 +47,7 @@ void Address::insert(int key) {
   cout << "Status: " << status << endl;
   if (status == 0) {
     cout << "Bucket full, splitting...";
-    // split(bucketNo);
+    split(bucketNo);
     insert(key);
   } else if (status == 1) {
     cout << "Key already in bucket." << endl;
@@ -63,7 +63,41 @@ void Address::deleteKey(int key) {
        << endl;
 }
 
+int Address::pairIndexes(int bucketNo, int depth) {
+  return bucketNo ^ (1 << (depth - 1));
+}
+
 void Address::split(int bucketNo) {
-  // if () // something
-  // grow();
+  int localDepth, pairIndex;
+  int indexDiff, addressSize;
+  vector<int> temp;
+
+  localDepth = buckets[bucketNo]->increaseDepth();
+  if (localDepth > globalDepth)
+    grow();
+  pairIndex = pairIndexes(bucketNo, localDepth);
+  buckets[pairIndex] = new Bucket(localDepth, bucketSize);
+  temp = buckets[bucketNo]->copy();
+  buckets[bucketNo]->clear();
+
+  indexDiff = 1 << localDepth;
+  addressSize = 1 << globalDepth;
+  int i;
+  for (i = pairIndex - indexDiff; i >= 0; i -= indexDiff)
+    buckets[i] = buckets[pairIndex];
+  for (i = pairIndex + indexDiff; i < addressSize; i += indexDiff)
+    buckets[i] = buckets[pairIndex];
+  for (auto it = temp.begin(); it != temp.end(); it++)
+    insert(*it);
+}
+
+void Address::grow() {
+  for (int i = 0; i < 1 << globalDepth; i++)
+    buckets.push_back(buckets[i]);
+  globalDepth++;
+}
+
+void Address::shrink() {
+  // buckets.pop_back(buckets[i]);
+  globalDepth--;
 }
