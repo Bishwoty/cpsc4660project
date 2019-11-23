@@ -6,31 +6,30 @@
 using namespace std;
 
 int main() {
-  int size, key;
-  string operation;
+  int key;
+  string choice;
+  Address a(1, 2);
 
-  Address a(1, 2); // globalDepth = 1, bucketSize = 2
-  cout << ">> i <key>" << endl;
-  cout << ">> d <key>" << endl;
-  cout << ">> s <key>" << endl;
-  cout << ">> exit" << endl;
+  cout << "<i> <key>" << endl;
+  cout << "<d> <key>" << endl;
+  cout << "<s> <key>" << endl;
+  cout << "exit" << endl;
 
   do {
-    cout << ">> ";
-    cin >> operation;
-
-    if (operation == "i") {
+    cout << endl;
+    cout << ">>";
+    cin >> choice;
+    if (choice == "i") {
       cin >> key;
       a.insert(key);
-    } else if (operation == "d") {
+    } else if (choice == "d") {
       cin >> key;
       a.deleteKey(key);
-    } else if (operation == "s") {
+    } else if (choice == "s") {
       cin >> key;
-      a.search(key);
+      bool displayMessages = true;
+      a.search(key, displayMessages);
     }
-
-  } while (operation != "exit");
-
+  } while (choice != "exit");
   return 0;
 }

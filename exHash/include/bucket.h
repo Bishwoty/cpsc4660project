@@ -6,19 +6,15 @@ using namespace std;
 class Bucket {
 public:
   Bucket(int depth, int size);
-  bool search(int key);
-  int insert(int key);
-  int deleteKey(int key);
-  int increaseDepth() { return localDepth++; }
-  int decreaseDepth() { return localDepth--; }
-  int getDepth() { return localDepth; }
-  int clear() { values.clear(); }
+  int getDepth();
+  int increaseDepth();
+  int decreaseDepth();
   vector<int> copy();
-  int isFull(void);
-  int isEmpty(void);
+  void clear();
 
-private:
-  int localDepth;
-  int bucketSize;
   vector<int> values;
+
+  // private:
+  int localDepth, bucketSizeCap;
+  // vector<int> values;
 };

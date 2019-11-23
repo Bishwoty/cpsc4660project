@@ -6,21 +6,20 @@ using namespace std;
 
 class Address {
 public:
-  Address(int depth, int size);
-  int hash(int n);
-  string bucketId(int n);
-  void search(int key);
+  Address(int depth, int bucketSize);
+  int hashFunc(int n);
+  bool search(int key, bool fromInsert);
   void insert(int key);
   void deleteKey(int key);
-  int pairIndexes(int bucketNo, int depth);
-  void split(int bucketNo);
-  void split(int bucketNo);
-  void merge(int bucketNo);
-  void grow();
-  void shrink();
-  void display();
 
 private:
-  int globalDepth, bucketSize;
+  int globalDepth, bucketSizeCap;
   vector<Bucket *> buckets;
+
+  int pairIndexes(int bucketNo, int depth);
+  void grow(); // int bucketNo);
+  void shrink();
+  void split(int bucketNo);
+  void merge(int bucketNo);
+  string bucketId(unsigned int bucketNum);
 };
