@@ -7,6 +7,9 @@ using namespace std;
 class Address {
 public:
   Address(int depth, int bucketSize);
+
+  void display();
+
   int hashFunc(int n);
   bool search(int key, bool fromInsert);
   void insert(int key);

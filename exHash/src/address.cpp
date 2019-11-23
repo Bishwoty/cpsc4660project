@@ -14,6 +14,17 @@ Address::Address(int depth, int bucketSize) {
   }
 }
 
+///
+void Address::display() {
+  for (int i = 0; i < (1 << globalDepth); ++i) {
+    cout << "Local depth of the bucket is : " << buckets[i]->localDepth << "\n";
+    for (auto j : buckets[i]->values[i])
+      cout << j << " ";
+    cout << "\n";
+  }
+}
+///
+
 int Address::hashFunc(int n) { return ((n % 64) >> (6 - globalDepth)); }
 
 bool Address::search(int key, bool displayMessages) {
@@ -101,7 +112,7 @@ void Address::shrink() {
 }
 
 void Address::split(int bucketNo) {
-  cout << "Splitting bucket<" << bucketId(bucketNo) << ">";
+  cout << "Splitting bucket<" << bucketId(bucketNo) << "> ";
 
   int localDepth, pairIndex, indexDiff, addressSize;
   vector<int> temp;

@@ -29,6 +29,9 @@ int main() {
       cin >> key;
       bool displayMessages = true;
       a.search(key, displayMessages);
+    } else if (choice == "display") {
+
+      a.display();
     }
   } while (choice != "exit");
   return 0;
