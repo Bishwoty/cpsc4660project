@@ -34,3 +34,22 @@ vector<int> Bucket::copy() {
   vector<int> temp(values.begin(), values.end());
   return temp;
 }
+
+vector<int> Bucket::copy(void) {
+  vector<int> temp(values.begin(), values.end());
+  return temp;
+}
+
+int Bucket::isFull(void) {
+  if (values.size() == size)
+    return 1;
+  else
+    return 0;
+}
+
+int Bucket::isEmpty(void) {
+  if (values.size() == 0)
+    return 1;
+  else
+    return 0;
+}

@@ -7,11 +7,13 @@ Address::Address(int depth, int size) {
   globalDepth = depth;
   bucketSize = size;
   for (int i = 0; i < 1 << depth; i++) {
-    buckets.push_back(new Bucket(bucketSize, bucketSize));
+    buckets.push_back(new Bucket(globalDepth, bucketSize));
   }
 }
 
-int Address::hash(int n) { return ((n % 64) >> (6 - globalDepth)); }
+int Address::hash(int n) { // return ((n % 64) >> (6 - globalDepth));
+  return n & ((1 << globalDepth) - 1);
+}
 
 string Address::bucketId(int n) {
   int d;
@@ -39,6 +41,10 @@ void Address::search(int key) {
     cout << "Found key:" << key << " in bucket: " << bucketId(bucketNo) << endl;
   else
     cout << "This key does not exist. ???" << endl;
+
+  int bucketNo = hash(key);
+  cout << "Found key: " << key << " in bucket: " << bucket_id(bucketNo) << endl;
+  buckets[bucketNo]->search(key);
 }
 
 void Address::insert(int key) {
@@ -61,6 +67,9 @@ void Address::deleteKey(int key) {
   buckets[bucketNo]->deleteKey(key);
   cout << "Deleted key: " << key << " from bucket " << bucketId(bucketNo)
        << endl;
+
+  if (buckets[bucketNo]->isEmpty() && buckets[bucketNo]->getDepth() > 1)
+    merge(bucketNo);
 }
 
 int Address::pairIndexes(int bucketNo, int depth) {
@@ -98,6 +107,14 @@ void Address::grow() {
 }
 
 void Address::shrink() {
-  // buckets.pop_back(buckets[i]);
+  int i, flag = 1;
+  for (i = 0; i < buckets.size(); i++) {
+    if (buckets[i]->getDepth() == globalDepth) {
+      flag = 0;
+      return;
+    }
+  }
   globalDepth--;
+  for (i = 0; i < 1 << globalDepth; i++)
+    buckets.pop_back();
 }

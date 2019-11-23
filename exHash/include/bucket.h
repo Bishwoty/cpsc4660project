@@ -14,6 +14,8 @@ public:
   int getDepth() { return localDepth; }
   int clear() { values.clear(); }
   vector<int> copy();
+  int isFull(void);
+  int isEmpty(void);
 
 private:
   int localDepth;
