@@ -33,6 +33,7 @@ int main() {
     } else if (choice == "display") {
       a.display();
     }
+    a.display();
   } while (choice != "exit");
   return 0;
 }

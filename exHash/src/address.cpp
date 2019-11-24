@@ -16,7 +16,11 @@ Address::Address(int depth, int bucketSize) {
 
 void Address::display() {
   for (int i = 0; i < (1 << globalDepth); ++i) {
-    cout << buckets[i]->bucketId(i);
+    cout << i << " -> ";
+    for (int j = 0; j < buckets[i]->values.size(); j++) {
+      cout << buckets[i]->values[j] << ' ';
+    }
+    cout << endl;
   }
 }
 
@@ -49,6 +53,9 @@ void Address::insert(int key) {
       buckets[bucketNo]->values.push_back(key);
       cout << "Inserted key<" << key << ">in bucket<" << bucketId(bucketNo)
            << ">" << endl;
+    } else if (buckets[bucketNo]->localDepth == globalDepth) {
+      grow();
+      insert(key);
     } else {
       split(bucketNo);
       insert(key);
@@ -81,8 +88,13 @@ int Address::pairIndexes(int bucketNo, int depth) {
 }
 
 void Address::grow() {
-  for (int i = 0; i < (1 << globalDepth); i++)
-    buckets.push_back(buckets[i]);
+  int size = buckets.size();
+  for (int i = 0; i < size; i++)
+    buckets.push_back(nullptr);
+  for (int i = buckets.size() - 1; i >= 0; i--) {
+    buckets[i] = buckets[i / 2];
+  }
+
   globalDepth++;
   cout << "Global depth<" << globalDepth << ">" << endl;
 }
@@ -99,26 +111,38 @@ void Address::shrink() {
 
 void Address::split(int bucketNo) {
   cout << "Splitting bucket<" << bucketId(bucketNo) << "> ";
-
-  int localDepth, pairIndex, indexDiff, addressSize;
+  int depthDiff = globalDepth - buckets[bucketNo]->localDepth;
   vector<int> temp;
-  vector<int>::iterator it;
-
-  localDepth = buckets[bucketNo]->increaseDepth();
-  if (localDepth > globalDepth)
-    grow();
-  pairIndex = pairIndexes(bucketNo, localDepth);
-  buckets[pairIndex] = new Bucket(localDepth, bucketSizeCap);
   temp = buckets[bucketNo]->copy();
   buckets[bucketNo]->clear();
-  indexDiff = 1 << localDepth;
-  addressSize = 1 << globalDepth;
-  for (int i = pairIndex - indexDiff; i >= 0; i -= indexDiff)
-    buckets[i] = buckets[pairIndex];
-  for (int j = pairIndex + indexDiff; j < addressSize; j += indexDiff)
-    buckets[j] = buckets[pairIndex];
-  for (it = temp.begin(); it != temp.end(); it++)
-    insert(*it);
+  if (bucketNo % 2 == 1)
+    bucketNo -= 1;
+  buckets[bucketNo]->increaseDepth();
+  buckets[bucketNo + 1] =
+      new Bucket(buckets[bucketNo]->localDepth, bucketSizeCap);
+  for (int i = 0; i < temp.size(); i++) {
+    insert(temp[i]);
+  }
+
+  // int localDepth, pairIndex, indexDiff, addressSize;
+  // vector<int> temp;
+  // vector<int>::iterator it;
+  //
+  // localDepth = buckets[bucketNo]->increaseDepth();
+  // if (localDepth > globalDepth)
+  //   grow();
+  // pairIndex = pairIndexes(bucketNo, localDepth);
+  // buckets[pairIndex] = new Bucket(localDepth, bucketSizeCap);
+  // temp = buckets[bucketNo]->copy();
+  // buckets[bucketNo]->clear();
+  // indexDiff = 1 << localDepth;
+  // addressSize = 1 << globalDepth;
+  // for (int i = pairIndex - indexDiff; i >= 0; i -= indexDiff)
+  //   buckets[i] = buckets[pairIndex];
+  // for (int j = pairIndex + indexDiff; j < addressSize; j += indexDiff)
+  //   buckets[j] = buckets[pairIndex];
+  // for (it = temp.begin(); it != temp.end(); it++)
+  //   insert(*it);
 
   /*
     Bucket *newBucket = new Bucket(globalDepth, bucketSizeCap);
