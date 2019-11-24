@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <bits/stdc++.h>
 #include <bitset>
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -16,71 +17,73 @@ Address::Address(int depth, int bucketSize) {
 
 void Address::display() {
   for (int i = 0; i < (1 << globalDepth); ++i) {
-    cout << i << " -> ";
+    // cout << i << " -> ";
     for (int j = 0; j < buckets[i]->values.size(); j++) {
-      cout << buckets[i]->values[j] << ' ';
+      // cout << buckets[i]->values[j] << ' ';
     }
-    cout << endl;
+    // cout << endl;
   }
 }
 
 int Address::hashFunc(int n) { return ((n % 64) >> (6 - globalDepth)); }
 
-bool Address::search(int key, bool displayMessages) {
+bool Address::search(int key) {
   int bucketNo = hashFunc(key);
   vector<int>::iterator it;
   it = find(buckets[bucketNo]->values.begin(), buckets[bucketNo]->values.end(),
             key);
   if (it != buckets[bucketNo]->values.end()) {
-    if (displayMessages == true)
-      cout << "Found key<" << key << ">in bucket<" << bucketId(bucketNo) << ">"
-           << endl;
+
+    // cout << "Found key<" << key << ">in bucket<" << bucketId(bucketNo) << ">"
+    //     << endl;
     return true;
   } else {
-    if (displayMessages == true)
-      cout << "The key<" << key << ">does not exist." << endl;
+
+    // cout << "The key<" << key << ">does not exist." << endl;
     return false;
   }
 }
 
 void Address::insert(int key) {
   int bucketNo = hashFunc(key);
-  cout << "BucketNo<" << bucketNo << ">";
+  // cout << "BucketNo<" << bucketNo << ">";
   bool displayMessages = false;
-  bool isFound = search(key, displayMessages);
+  bool isFound = search(key);
   if (isFound == false) {
     if (buckets[bucketNo]->values.size() < bucketSizeCap) {
       buckets[bucketNo]->values.push_back(key);
-      cout << "Inserted key<" << key << ">in bucket<" << bucketId(bucketNo)
-           << ">" << endl;
+      // cout << "Inserted key<" << key << ">in bucket<" << bucketId(bucketNo)
+      //     << ">" << endl;
     } else if (buckets[bucketNo]->localDepth == globalDepth) {
+      // cout << "Grow" << endl;
       grow();
       insert(key);
     } else {
+      // cout << "Split" << endl;
       split(bucketNo);
       insert(key);
     }
-  } else
-    cout << "The key<" << key << ">already exists." << endl;
+  } // else
+  // cout << "The key<" << key << ">already exists." << endl;
 }
 
 void Address::deleteKey(int key) {
   int bucketNo = hashFunc(key);
   bool displayMessages = false;
-  bool isFound = search(key, displayMessages);
+  bool isFound = search(key);
   if (isFound == true) {
     vector<int>::iterator it;
     it = find(buckets[bucketNo]->values.begin(),
               buckets[bucketNo]->values.end(), key);
     if (it != buckets[bucketNo]->values.end()) {
       buckets[bucketNo]->values.erase(it);
-      cout << "Deleted key<" << key << ">from bucket<" << bucketId(bucketNo)
-           << ">" << endl;
+      // cout << "Deleted key<" << key << ">from bucket<" << bucketId(bucketNo)
+      //     << ">" << endl;
     }
     merge(bucketNo); // Try to merge buckets
     shrink();        // Try to shrink address
-  } else
-    cout << "The key<" << key << ">does not exist." << endl;
+  }                  // else
+  // cout << "The key<" << key << ">does not exist." << endl;
 }
 
 int Address::pairIndexes(int bucketNo, int depth) {
@@ -94,9 +97,8 @@ void Address::grow() {
   for (int i = buckets.size() - 1; i >= 0; i--) {
     buckets[i] = buckets[i / 2];
   }
-
   globalDepth++;
-  cout << "Global depth<" << globalDepth << ">" << endl;
+  // cout << "Global depth<" << globalDepth << ">" << endl;
 }
 
 void Address::shrink() {
@@ -110,72 +112,18 @@ void Address::shrink() {
 }
 
 void Address::split(int bucketNo) {
-  cout << "Splitting bucket<" << bucketId(bucketNo) << "> ";
+  // cout << "Splitting bucket<" << bucketId(bucketNo) << "> ";
   int depthDiff = globalDepth - buckets[bucketNo]->localDepth;
   vector<int> temp;
   temp = buckets[bucketNo]->copy();
   buckets[bucketNo]->clear();
-  bucketNo -= bucketNo % (depthDiff + 1);
+  bucketNo -= bucketNo % static_cast<int>(pow(2, depthDiff));
   buckets[bucketNo]->increaseDepth();
   buckets[bucketNo + 1] =
       new Bucket(buckets[bucketNo]->localDepth, bucketSizeCap);
   for (int i = 0; i < temp.size(); i++) {
     insert(temp[i]);
   }
-
-  // int localDepth, pairIndex, indexDiff, addressSize;
-  // vector<int> temp;
-  // vector<int>::iterator it;
-  //
-  // localDepth = buckets[bucketNo]->increaseDepth();
-  // if (localDepth > globalDepth)
-  //   grow();
-  // pairIndex = pairIndexes(bucketNo, localDepth);
-  // buckets[pairIndex] = new Bucket(localDepth, bucketSizeCap);
-  // temp = buckets[bucketNo]->copy();
-  // buckets[bucketNo]->clear();
-  // indexDiff = 1 << localDepth;
-  // addressSize = 1 << globalDepth;
-  // for (int i = pairIndex - indexDiff; i >= 0; i -= indexDiff)
-  //   buckets[i] = buckets[pairIndex];
-  // for (int j = pairIndex + indexDiff; j < addressSize; j += indexDiff)
-  //   buckets[j] = buckets[pairIndex];
-  // for (it = temp.begin(); it != temp.end(); it++)
-  //   insert(*it);
-
-  /*
-    Bucket *newBucket = new Bucket(globalDepth, bucketSizeCap);
-    vector<int> temp;
-    temp = buckets[bucketNo]->copy();
-    buckets[bucketNo]->clear();
-
-    if (buckets[bucketNo]->localDepth == globalDepth) { // Split and expand
-      buckets[bucketNo]->values[bucketNo ^ (1 << globalDepth)] = newBucket;
-      if (globalDepth != 0)
-        grow(bucketNo);
-      newBucket->localDepth = ++buckets[bucketNo]->localDepth;
-      for (auto i : temp) {
-        int bNo = hashFunc(i);
-        buckets[bucketNo]->values[bNo].push_back(i);
-      }
-    } else { // Just split
-
-      int k = bucketNo & (1 << (buckets[bucketNo]->localDepth) - 1);
-      vector<int> indices;
-      for (int i = 0; i < (1 << globalDepth); ++i) {
-        int last = i & (1 << (buckets[bucketNo]->localDepth)) - 1;
-        if (last == k)
-          indices.push_back(i);
-      }
-      newBucket->localDepth = ++buckets[bucketNo]->localDepth;
-      for (int i = indices.size() / 2; i < indices.size(); ++i)
-        buckets[bucketNo]->values[indices[i]] = newBucket;
-
-      for (auto i : temp) {
-        int bNo = hashFunc(i);
-        buckets[bucketNo]->values[bNo].push_back(i);
-      }
-    }*/
 }
 
 void Address::merge(int bucketNo) {

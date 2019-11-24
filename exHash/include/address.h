@@ -8,7 +8,7 @@ class Address {
 public:
   Address(int depth, int bucketSize);
   int hashFunc(int n);
-  bool search(int key, bool fromInsert);
+  bool search(int key);
   void insert(int key);
   void deleteKey(int key);
   void display();
