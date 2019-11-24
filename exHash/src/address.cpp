@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <bits/stdc++.h>
 #include <bitset>
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -115,7 +116,7 @@ void Address::split(int bucketNo) {
   vector<int> temp;
   temp = buckets[bucketNo]->copy();
   buckets[bucketNo]->clear();
-  bucketNo -= bucketNo % (depthDiff + 1);
+  bucketNo -= bucketNo % pow(2, depthDiff);
   buckets[bucketNo]->increaseDepth();
   buckets[bucketNo + 1] =
       new Bucket(buckets[bucketNo]->localDepth, bucketSizeCap);
