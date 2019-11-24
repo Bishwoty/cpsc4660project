@@ -115,7 +115,7 @@ void Address::split(int bucketNo) {
   vector<int> temp;
   temp = buckets[bucketNo]->copy();
   buckets[bucketNo]->clear();
-  bucketNo -= bucketNo % 2;
+  bucketNo -= bucketNo % (depthDiff + 1);
   buckets[bucketNo]->increaseDepth();
   buckets[bucketNo + 1] =
       new Bucket(buckets[bucketNo]->localDepth, bucketSizeCap);
