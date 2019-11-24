@@ -1,6 +1,7 @@
 #include <address.h>
 #include <algorithm>
-#include <bits/stdc++.h>
+#include <array>
+//#include <bits/stdc++.h>
 #include <bucket.h>
 #include <chrono>
 #include <iostream>
@@ -12,9 +13,10 @@ using namespace std::chrono;
 int getSeed();
 
 int main() {
-  int seed = getSeed();
+
+  int seed = 1; // getSeed();
   array<int, 100> nums;
-  Address a(0, 2);
+  Address a(0, 20);
   array<nanoseconds, 100> insertTimes;
   array<nanoseconds, 100> findTimes;
   // array<nanoseconds, 100> removeTimes;
@@ -24,7 +26,6 @@ int main() {
     nums[i] = i;
 
   shuffle(nums.begin(), nums.end(), default_random_engine(seed));
-
   for (int i = 0; i < nums.size(); i++) {
     start = steady_clock::now();
     a.insert(nums[i]);
@@ -35,7 +36,6 @@ int main() {
     end = steady_clock::now();
     findTimes[i] = end - start;
   }
-
   for (int i = 0; i < insertTimes.size(); i++)
     cout << i << '\t' << insertTimes[i].count() << '\t' << findTimes[i].count()
          << endl;
@@ -44,6 +44,7 @@ int main() {
   /*
     int key, seed;
     string choice;
+    Address a(0, 2);
 
     cout << "<i> <key>" << endl;
     cout << "<d> <key>" << endl;
@@ -67,11 +68,11 @@ int main() {
       } else if (choice == "display") {
         a.display();
       }
-
+      a.display();
     } while (choice != "exit");
-    */
-  // ~~~~~~~~~~~~~~ Extendible hashing program end ~~~~~~~~~~~~~~
 
+    // ~~~~~~~~~~~~~~ Extendible hashing program end ~~~~~~~~~~~~~~
+  */
   return 0;
 }
 
