@@ -17,11 +17,17 @@ Address::Address(int depth, int bucketSize) {
 
 void Address::display() {
   for (int i = 0; i < (1 << globalDepth); ++i) {
-    // cout << i << " -> ";
-    for (int j = 0; j < buckets[i]->values.size(); j++) {
-      // cout << buckets[i]->values[j] << ' ';
+    cout << i << " -> ";
+    if (buckets[i]->localDepth == globalDepth ||
+        i % static_cast<int>(pow(2, globalDepth - buckets[i]->localDepth)) ==
+            0) {
+      for (int j = 0; j < buckets[i]->values.size(); j++) {
+        cout << buckets[i]->values[j] << ' ';
+      }
+    } else {
+      cout << '^';
     }
-    // cout << endl;
+    cout << endl;
   }
 }
 
