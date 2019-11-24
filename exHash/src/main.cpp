@@ -8,11 +8,12 @@ using namespace std;
 int main() {
   int key;
   string choice;
-  Address a(1, 2);
+  Address a(0, 2);
 
   cout << "<i> <key>" << endl;
   cout << "<d> <key>" << endl;
   cout << "<s> <key>" << endl;
+  cout << "display" << endl;
   cout << "exit" << endl;
 
   do {
@@ -30,7 +31,6 @@ int main() {
       bool displayMessages = true;
       a.search(key, displayMessages);
     } else if (choice == "display") {
-
       a.display();
     }
   } while (choice != "exit");

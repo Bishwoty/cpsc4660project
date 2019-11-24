@@ -13,8 +13,5 @@ public:
   void clear();
 
   vector<int> values;
-
-  // private:
   int localDepth, bucketSizeCap;
-  // vector<int> values;
 };

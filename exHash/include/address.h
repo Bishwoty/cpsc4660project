@@ -7,22 +7,20 @@ using namespace std;
 class Address {
 public:
   Address(int depth, int bucketSize);
-
-  void display();
-
   int hashFunc(int n);
   bool search(int key, bool fromInsert);
   void insert(int key);
   void deleteKey(int key);
+  void display();
 
 private:
   int globalDepth, bucketSizeCap;
   vector<Bucket *> buckets;
 
   int pairIndexes(int bucketNo, int depth);
-  void grow(); // int bucketNo);
+  void grow();
   void shrink();
   void split(int bucketNo);
   void merge(int bucketNo);
-  string bucketId(unsigned int bucketNum);
+  string bucketId(int bucketNum);
 };

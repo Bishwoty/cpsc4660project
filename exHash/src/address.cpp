@@ -14,16 +14,11 @@ Address::Address(int depth, int bucketSize) {
   }
 }
 
-///
 void Address::display() {
   for (int i = 0; i < (1 << globalDepth); ++i) {
-    cout << "Local depth of the bucket is : " << buckets[i]->localDepth << "\n";
-    for (auto j : buckets[i]->values[i])
-      cout << j << " ";
-    cout << "\n";
+    cout << buckets[i]->bucketId(i);
   }
 }
-///
 
 int Address::hashFunc(int n) { return ((n % 64) >> (6 - globalDepth)); }
 
@@ -46,6 +41,7 @@ bool Address::search(int key, bool displayMessages) {
 
 void Address::insert(int key) {
   int bucketNo = hashFunc(key);
+  cout << "BucketNo<" << bucketNo << ">";
   bool displayMessages = false;
   bool isFound = search(key, displayMessages);
   if (isFound == false) {
@@ -56,8 +52,6 @@ void Address::insert(int key) {
     } else {
       split(bucketNo);
       insert(key);
-      cout << "Inserted key<" << key << ">in bucket<" << bucketId(bucketNo)
-           << ">" << endl;
     }
   } else
     cout << "The key<" << key << ">already exists." << endl;
@@ -86,28 +80,20 @@ int Address::pairIndexes(int bucketNo, int depth) {
   return bucketNo ^ (1 << (depth - 1));
 }
 
-void Address::grow() { // int bucketNo) {
+void Address::grow() {
   for (int i = 0; i < (1 << globalDepth); i++)
     buckets.push_back(buckets[i]);
   globalDepth++;
-  /*
-    for (int i = 0; i < (1 << globalDepth); ++i) {
-      if (i != bucketNo)
-        buckets[bucketNo]->values[i ^ (1 << globalDepth)] =
-            buckets[bucketNo]->values[i];
-    }
-    globalDepth++;*/
+  cout << "Global depth<" << globalDepth << ">" << endl;
 }
+
 void Address::shrink() {
-  int i, flag = 1;
-  for (i = 0; i < buckets.size(); i++) {
-    if (buckets[i]->getDepth() == globalDepth) {
-      flag = 0;
+  for (int i = 0; i < buckets.size(); i++) {
+    if (buckets[i]->getDepth() == globalDepth)
       return;
-    }
   }
   globalDepth--;
-  for (i = 0; i < 1 << globalDepth; i++)
+  for (int j = 0; j < 1 << globalDepth; j++)
     buckets.pop_back();
 }
 
@@ -127,11 +113,10 @@ void Address::split(int bucketNo) {
   buckets[bucketNo]->clear();
   indexDiff = 1 << localDepth;
   addressSize = 1 << globalDepth;
-  int i;
-  for (i = pairIndex - indexDiff; i >= 0; i -= indexDiff)
+  for (int i = pairIndex - indexDiff; i >= 0; i -= indexDiff)
     buckets[i] = buckets[pairIndex];
-  for (i = pairIndex + indexDiff; i < addressSize; i += indexDiff)
-    buckets[i] = buckets[pairIndex];
+  for (int j = pairIndex + indexDiff; j < addressSize; j += indexDiff)
+    buckets[j] = buckets[pairIndex];
   for (it = temp.begin(); it != temp.end(); it++)
     insert(*it);
 
@@ -171,7 +156,7 @@ void Address::split(int bucketNo) {
 }
 
 void Address::merge(int bucketNo) {
-  int localDepth, pairIndex, indexDiff, addressSize, i;
+  int localDepth, pairIndex, indexDiff, addressSize;
 
   localDepth = buckets[bucketNo]->getDepth();
   pairIndex = pairIndexes(bucketNo, localDepth);
@@ -182,23 +167,24 @@ void Address::merge(int bucketNo) {
     buckets[pairIndex]->decreaseDepth();
     delete (buckets[bucketNo]);
     buckets[bucketNo] = buckets[pairIndex];
-    for (i = bucketNo - indexDiff; i >= 0; i -= indexDiff)
+    for (int i = bucketNo - indexDiff; i >= 0; i -= indexDiff)
       buckets[i] = buckets[pairIndex];
-    for (i = bucketNo + indexDiff; i < addressSize; i += indexDiff)
-      buckets[i] = buckets[pairIndex];
+    for (int j = bucketNo + indexDiff; j < addressSize; j += indexDiff)
+      buckets[j] = buckets[pairIndex];
   }
 }
 
-string Address::bucketId(unsigned int bucketNum) {
-  // string binary = std::bitset<8>(bucketNum).to_string(); // Convert to binary
-  // return binary;
-  string s = "";
-  for (int i = (7 >> (6 - globalDepth)); i >= 0; i--) {
-    int k = bucketNum >> i;
-    if (k & 1)
-      s += "1";
-    else
-      s += "0";
+string Address::bucketId(int bucketNum) {
+  int depth = buckets[bucketNum]->getDepth();
+  string localAddress = "";
+  while (bucketNum > 0 && depth > 0) {
+    localAddress = (bucketNum % 2 == 0 ? "0" : "1") + localAddress;
+    bucketNum /= 2;
+    depth--;
   }
-  return s;
+  while (depth > 0) {
+    localAddress = "0" + localAddress;
+    depth--;
+  }
+  return localAddress;
 }
