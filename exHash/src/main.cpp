@@ -1,7 +1,6 @@
 #include <address.h>
 #include <algorithm>
 #include <array>
-//#include <bits/stdc++.h>
 #include <bucket.h>
 #include <chrono>
 #include <iostream>
@@ -39,40 +38,6 @@ int main() {
   for (int i = 0; i < insertTimes.size(); i++)
     cout << i << '\t' << insertTimes[i].count() << '\t' << findTimes[i].count()
          << endl;
-
-  // ~~~~~~~~~~~~~~ Extendible hashing program ~~~~~~~~~~~~~~~~~~
-  /*
-    int key, seed;
-    string choice;
-    Address a(0, 2);
-
-    cout << "<i> <key>" << endl;
-    cout << "<d> <key>" << endl;
-    cout << "<s> <key>" << endl;
-    cout << "display" << endl;
-    cout << "exit" << endl;
-
-    do {
-      cout << endl;
-      cout << ">>";
-      cin >> choice;
-      if (choice == "i") {
-        cin >> key;
-        a.insert(key);
-      } else if (choice == "d") {
-        cin >> key;
-        a.deleteKey(key);
-      } else if (choice == "s") {
-        cin >> key;
-        a.search(key);
-      } else if (choice == "display") {
-        a.display();
-      }
-      a.display();
-    } while (choice != "exit");
-
-    // ~~~~~~~~~~~~~~ Extendible hashing program end ~~~~~~~~~~~~~~
-  */
   return 0;
 }
 

@@ -39,37 +39,36 @@ bool Address::search(int key) {
   it = find(buckets[bucketNo]->values.begin(), buckets[bucketNo]->values.end(),
             key);
   if (it != buckets[bucketNo]->values.end()) {
-    // cout << "Found key<" << key << ">in bucket<" << bucketId(bucketNo) << ">"
-    //     << endl;
+
+    cout << "Found key<" << key << ">in bucket<" << bucketId(bucketNo) << ">"
+         << endl;
     return true;
   } else {
 
-    // cout << "The key<" << key << ">does not exist." << endl;
+    cout << "The key<" << key << ">does not exist." << endl;
     return false;
   }
 }
 
 void Address::insert(int key) {
   int bucketNo = hashFunc(key);
-  // cout << "BucketNo<" << bucketNo << ">";
+  cout << "BucketNo<" << bucketNo << ">";
   bool displayMessages = false;
   bool isFound = search(key);
   if (isFound == false) {
     if (buckets[bucketNo]->values.size() < bucketSizeCap) {
       buckets[bucketNo]->values.push_back(key);
-      // cout << "Inserted key<" << key << ">in bucket<" << bucketId(bucketNo)
-      //     << ">" << endl;
+      cout << "Inserted key<" << key << ">in bucket<" << bucketId(bucketNo)
+           << ">" << endl;
     } else if (buckets[bucketNo]->localDepth == globalDepth) {
-      // cout << "Grow" << endl;
       grow();
       insert(key);
     } else {
-      // cout << "Split" << endl;
       split(bucketNo);
       insert(key);
     }
-  } // else
-  // cout << "The key<" << key << ">already exists." << endl;
+  } else
+    cout << "The key<" << key << ">already exists." << endl;
 }
 
 void Address::deleteKey(int key) {
@@ -82,13 +81,13 @@ void Address::deleteKey(int key) {
               buckets[bucketNo]->values.end(), key);
     if (it != buckets[bucketNo]->values.end()) {
       buckets[bucketNo]->values.erase(it);
-      // cout << "Deleted key<" << key << ">from bucket<" << bucketId(bucketNo)
-      //     << ">" << endl;
+      cout << "Deleted key<" << key << ">from bucket<" << bucketId(bucketNo)
+           << ">" << endl;
     }
     merge(bucketNo); // Try to merge buckets
     shrink();        // Try to shrink address
   }                  // else
-  // cout << "The key<" << key << ">does not exist." << endl;
+  cout << "The key<" << key << ">does not exist." << endl;
 }
 
 int Address::pairIndexes(int bucketNo, int depth) {
@@ -103,7 +102,7 @@ void Address::grow() {
     buckets[i] = buckets[i / 2];
   }
   globalDepth++;
-  // cout << "Global depth<" << globalDepth << ">" << endl;
+  cout << "Global depth<" << globalDepth << ">" << endl;
 }
 
 void Address::shrink() {
@@ -117,7 +116,7 @@ void Address::shrink() {
 }
 
 void Address::split(int bucketNo) {
-  // cout << "Splitting bucket<" << bucketId(bucketNo) << "> ";
+  cout << "Splitting bucket<" << bucketId(bucketNo) << "> ";
   int depthDiff = globalDepth - buckets[bucketNo]->localDepth;
   vector<int> temp;
   temp = buckets[bucketNo]->copy();
